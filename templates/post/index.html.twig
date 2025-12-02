@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post index{% endblock %}
+
+{% block body %}
+    <h1>Post index</h1>
+        {% for post in posts %}
+            <div>
+                <p>
+    <a href="{{ path('app_user_show', {'username': post.author.username}) }}">
+        {{ post.author.username }}
+    </a>
+    ({{ post.postDate ? post.postDate|date('Y-m-d H:i:s') : '' }})
+</p>
+
+{% if app.user and app.user.id != post.author.id %}
+    {% if post.author in app.user.following %}
+        <a href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+    {% else %}
+        <a href="{{ path('app_user_follow', {'id': post.author.id}) }}">Seguir</a>
+    {% endif %}
+{% endif %}
+
+                <br>
+                {% if post.img %}
+                    <img src="{{ asset('img/' ~ post.img) }}" alt="Post Image" style="max-width: 100px; max-height: 100px;">
+                {% endif %}
+
+                <p>{{ post.text }}</p>
+                <p>
+                {{ post.likes|length }}
+
+                    {% if post.likes.contains(app.user) %}
+                        <a href="{{ path('app_post_unlike', {'id': post.id}) }}">❤️</a>
+                    {% else %}
+                        <a href="{{ path('app_post_like', {'id': post.id}) }}">🤍</a>
+                    {% endif %}
+                    <a href="{{ path('app_post_show', {'id': post.id}) }}">show</a>
+                    <a href="{{ path('app_post_edit', {'id': post.id}) }}">edit</a>
+                </p>
+                </div>
+                <hr>
+        {% else %}
+                <div>No hay Posts</div>
+        {% endfor %}
+
+    <a href="{{ path('app_post_new') }}">Create new</a>
+{% endblock %}
