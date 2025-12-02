@@ -35,9 +35,16 @@ class Post
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'likes')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'reposts')]
+    private Collection $repostedBy;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->repostedBy = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -113,6 +120,33 @@ class Post
     public function removeLike(User $like): static
     {
         $this->likes->removeElement($like);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getRepostedBy(): Collection
+    {
+        return $this->repostedBy;
+    }
+
+    public function addRepostedBy(User $repostedBy): static
+    {
+        if (!$this->repostedBy->contains($repostedBy)) {
+            $this->repostedBy->add($repostedBy);
+            $repostedBy->addRepost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRepostedBy(User $repostedBy): static
+    {
+        if ($this->repostedBy->removeElement($repostedBy)) {
+            $repostedBy->removeRepost($this);
+        }
 
         return $this;
     }

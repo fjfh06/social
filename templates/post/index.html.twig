@@ -37,6 +37,16 @@
                     {% endif %}
                     <a href="{{ path('app_post_show', {'id': post.id}) }}">show</a>
                     <a href="{{ path('app_post_edit', {'id': post.id}) }}">edit</a>
+                    {{ post.repostedBy|length }} 
+
+                {% if app.user %}
+                    {% if post.repostedBy.contains(app.user) %}
+                        <a href="{{ path('app_post_unrepost', {'id': post.id}) }}">❌</a>
+                    {% else %}
+                        <a href="{{ path('app_post_repost', {'id': post.id}) }}">🔁</a>
+                    {% endif %}
+                {% endif %}
+
                 </p>
                 </div>
                 <hr>
