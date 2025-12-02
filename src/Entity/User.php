@@ -62,19 +62,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
     private Collection $followers;
 
-    /**
-     * @var Collection<int, Storie>
-     */
-    #[ORM\OneToMany(targetEntity: Storie::class, mappedBy: 'author', orphanRemoval: true)]
-    private Collection $stories;
-
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
-        $this->stories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -261,36 +254,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->followers->removeElement($follower)) {
             $follower->removeFollowing($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Storie>
-     */
-    public function getStories(): Collection
-    {
-        return $this->stories;
-    }
-
-    public function addStory(Storie $story): static
-    {
-        if (!$this->stories->contains($story)) {
-            $this->stories->add($story);
-            $story->setAuthor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStory(Storie $story): static
-    {
-        if ($this->stories->removeElement($story)) {
-            // set the owning side to null (unless already changed)
-            if ($story->getAuthor() === $this) {
-                $story->setAuthor(null);
-            }
         }
 
         return $this;
