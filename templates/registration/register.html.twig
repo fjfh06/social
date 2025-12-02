@@ -3,17 +3,30 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="auth-logo">Social</div>
 
-    {{ form_errors(registrationForm) }}
+            <h1>Crear cuenta</h1>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+            {{ form_errors(registrationForm) }}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+            <div class="auth-form">
+                {{ form_start(registrationForm) }}
+                    {{ form_row(registrationForm.username) }}
+                    {{ form_row(registrationForm.plainPassword, {
+                        label: 'Password'
+                    }) }}
+                    {{ form_row(registrationForm.agreeTerms) }}
+
+                    <button type="submit">Registrarse</button>
+                {{ form_end(registrationForm) }}
+            </div>
+
+            <div class="auth-extra">
+                ¿Ya tienes cuenta?
+                <a href="{{ path('app_login') }}">Inicia sesión</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
