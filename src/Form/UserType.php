@@ -4,11 +4,8 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
-<<<<<<< HEAD
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-=======
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
->>>>>>> md
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,21 +15,19 @@ class UserType extends AbstractType
     {
         $builder
             ->add('username')
-<<<<<<< HEAD
             ->add('isPrivate', CheckboxType::class, [
                 'label' => 'Cuenta privada',
                 'required' => false,
-            ]);
-        // NADA más: ni roles ni password
-=======
+            ])
             ->add('roles', ChoiceType::class, [
                 'choices' => [
                     'Usuario' => 'ROLE_USER',
                     'Admin' => 'ROLE_ADMIN',
                 ],
-                'multiple' => true,   // permite seleccionar varios roles
-                'expanded' => true,   // lo muestra como checkboxes
+                'multiple' => true,
+                'expanded' => true,
             ])
+
             ->add('password')
             ->add('likes', EntityType::class, [
                 'class' => Post::class,
@@ -49,7 +44,6 @@ class UserType extends AbstractType
                 'choice_label' => 'id',
                 'multiple' => true,
             ]);
->>>>>>> md
     }
 
     public function configureOptions(OptionsResolver $resolver): void
