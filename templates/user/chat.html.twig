@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Chats de {{ user.username }}{% endblock %}
+
+{% block body %}
+<h1>Chats de {{ user.username }}</h1>
+
+{# Botón para empezar un nuevo chat #}
+<a class="btn btn-success mb-3" href="{{ path('user_chat_new', {'userId': user.id}) }}">
+    Empezar nuevo chat
+</a>
+
+{# Lista de chats existentes #}
+{% if messages|length > 0 %}
+    <ul class="list-group">
+        {% for chat in messages %}
+            {# Obtener el otro usuario del chat #}
+            {% set otherUser = chat.users|filter(u => u.id != app.user.id)|first %}
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    Chat con 
+                    {% if otherUser %}
+                        <strong>{{ otherUser.username }}</strong>
+                    {% else %}
+                        <strong>Usuario desconocido</strong>
+                    {% endif %}
+                    
+                    {% if chat.text %}
+                        - Último mensaje: {{ chat.text|length > 30 ? chat.text|slice(0,30) ~ '...' : chat.text }}
+                    {% endif %}
+                </span>
+                <a class="btn btn-primary btn-sm" href="{{ path('user_chat_detail', {'id': chat.id}) }}" target="_blank">
+                    Abrir chat
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay chats aún.</p>
+{% endif %}
+
+<a href="{{ path('app_user_show', {'username': user.username}) }}">Volver al perfil</a>
+{% endblock %}
