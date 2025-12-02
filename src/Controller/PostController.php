@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/post')]
 #[IsGranted('ROLE_USER')]
@@ -127,4 +128,22 @@ final class PostController extends AbstractController
 
         return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
     }
+    #[Route('/reposted/{id}', name: 'app_post_repost', methods: ['GET'])]
+    public function resposted(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        $post->addRepostedBy($this->getUser());
+        $entityManager->persist($post);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/removeReposted/{id}', name: 'app_post_unrepost', methods: ['GET'])]
+    public function removeReposted(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        $post->removeRepostedBy($this->getUser());
+        $entityManager->persist($post);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+    }
+
 }

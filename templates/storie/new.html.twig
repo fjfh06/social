@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Historia{% endblock %}
+
+{% block body %}
+<div style="max-width: 500px; margin: 40px auto; font-family: sans-serif;">
+
+    <h1 style="
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 600;
+        font-size: 28px;
+    ">
+        Subir nueva historia
+    </h1>
+
+    <div style="
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    ">
+        {{ form_start(form) }}
+
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+
+            <div>
+                {{ form_label(form.img, 'Imagen de la historia') }}
+                {{ form_widget(form.img, {
+                    attr: {
+                        style: 'width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;'
+                    }
+                }) }}
+                {{ form_errors(form.img) }}
+            </div>
+
+            <button type="submit" style="
+                width: 100%;
+                padding: 12px;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                transition: background 0.2s;
+            "
+            onmouseover="this.style.background='#1f8a39'"
+            onmouseout="this.style.background='#28a745'">
+                Subir Historia
+            </button>
+
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ path('app_storie_index') }}" 
+           style="
+            background: #007bff;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        "
+        onmouseover="this.style.background='#005fcc'"
+        onmouseout="this.style.background='#007bff'">
+            Volver a historias
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -14,7 +14,6 @@ use App\Entity\FriendRequest;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -24,60 +23,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    //#[ORM\UniqueConstraint (name: 'UNIQ_USERNAME', columns: ['username'])]
-
     private ?string $username = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
-    /**
-     * @var Collection<int, Post>
-     */
+    // ===================== Relaciones =====================
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]
     private Collection $posts;
 
-    /**
-     * @var Collection<int, Post>
-     */
     #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'likes')]
     private Collection $likes;
 
-    /**
-     * @var Collection<int, self>
-     */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
     private Collection $following;
 
-    /**
-     * @var Collection<int, self>
-     */
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
     private Collection $followers;
-
-    #[ORM\Column]
-    private ?bool $isPrivate = null;
-
-    /**
-     * @var Collection<int, FriendRequest>
-     */
-    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender')]
-    private Collection $sentFriendRequests;
-
-    /**
-     * @var Collection<int, FriendRequest>
-     */
-    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver')]
-    private Collection $receivedFriendRequests;
 
     public function __construct()
     {
@@ -85,10 +50,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->likes = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
-        $this->sentFriendRequests = new ArrayCollection();
-        $this->receivedFriendRequests = new ArrayCollection();
     }
 
+    // ===================== Getters y Setters básicos =====================
     public function getId(): ?int
     {
         return $this->id;
@@ -102,45 +66,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -149,30 +95,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
     public function __serialize(): array
     {
         $data = (array) $this;
         $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
-
         return $data;
     }
 
     #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
+    public function eraseCredentials(): void {}
 
-    /**
-     * @return Collection<int, Post>
-     */
+    // ===================== Relación Posts =====================
     public function getPosts(): Collection
     {
         return $this->posts;
@@ -184,25 +120,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->posts->add($post);
             $post->setAuthor($this);
         }
-
         return $this;
     }
 
     public function removePost(Post $post): static
     {
         if ($this->posts->removeElement($post)) {
-            // set the owning side to null (unless already changed)
             if ($post->getAuthor() === $this) {
                 $post->setAuthor(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Post>
-     */
+    // ===================== Relación Likes =====================
     public function getLikes(): Collection
     {
         return $this->likes;
@@ -214,7 +145,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->likes->add($like);
             $like->addLike($this);
         }
-
         return $this;
     }
 
@@ -223,13 +153,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->likes->removeElement($like)) {
             $like->removeLike($this);
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
+    // ===================== Relación Following/Followers =====================
     public function getFollowing(): Collection
     {
         return $this->following;
@@ -240,20 +167,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if (!$this->following->contains($following)) {
             $this->following->add($following);
         }
-
         return $this;
     }
 
     public function removeFollowing(self $following): static
     {
         $this->following->removeElement($following);
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
     public function getFollowers(): Collection
     {
         return $this->followers;
@@ -265,7 +187,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->followers->add($follower);
             $follower->addFollowing($this);
         }
-
         return $this;
     }
 
@@ -274,7 +195,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->followers->removeElement($follower)) {
             $follower->removeFollowing($this);
         }
+        return $this;
+    }
 
+    // ===================== Relación Stories =====================
+    public function getStories(): Collection
+    {
+        return $this->stories;
+    }
+
+    public function addStory(Storie $story): static
+    {
+        if (!$this->stories->contains($story)) {
+            $this->stories->add($story);
+            $story->setAuthor($this);
+        }
+        return $this;
+    }
+
+    public function removeStory(Storie $story): static
+    {
+        if ($this->stories->removeElement($story)) {
+            if ($story->getAuthor() === $this) {
+                $story->setAuthor(null);
+            }
+        }
+        return $this;
+    }
+
+    // ===================== Relación Reposts =====================
+    public function getReposts(): Collection
+    {
+        return $this->reposts;
+    }
+
+    public function addRepost(Post $repost): static
+    {
+        if (!$this->reposts->contains($repost)) {
+            $this->reposts->add($repost);
+        }
+        return $this;
+    }
+
+    public function removeRepost(Post $repost): static
+    {
+        $this->reposts->removeElement($repost);
         return $this;
     }
 

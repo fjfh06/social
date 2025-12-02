@@ -119,6 +119,27 @@
     </ul>
 {% endif %}
 
+    {# NUEVA SECCIÓN: Reposts del usuario #}
+    <h2>Reposts ({{ user.reposts|length }})</h2>
+    <ul>
+        {% for repost in user.reposts %}
+            <li>
+                🔁 <a href="{{ path('app_post_show', {'id': repost.id}) }}">
+                    {% if repost.text %}
+                        {{ repost.text|length > 30 ? repost.text|slice(0, 30) ~ '...' : repost.text }}
+                    {% else %}
+                        Image only
+                    {% endif %}
+                </a>
+                (Original by <a href="{{ path('app_user_show', {'username': repost.author.username}) }}">
+                    {{ repost.author.username }}
+                </a>)
+            </li>
+        {% else %}
+            <li>No reposts yet</li>
+        {% endfor %}
+    </ul>
+
     <a href="{{ path('app_post_index') }}">Back to list</a>
 
     {# Solo el usuario mismo puede editar su perfil #}

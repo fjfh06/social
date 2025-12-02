@@ -15,6 +15,12 @@
         Logged in as {{ app.user.username }} |
         <a href="{{ path('app_logout') }}">Logout</a><br>
         <a href="{{ path('app_user_show', {'username': app.user.username}) }}">Profile</a>
+        <br>
+        <a href="{{ path('app_post_index') }}">Ver Posts</a>
+        <a href="{{ path('app_post_new') }}">Create Post</a>
+        <br>
+        <a href="{{ path('app_storie_index') }}">Ver Historias</a>
+        
     {% else %}
         <a href="{{ path('app_login') }}">Login</a>
     {% endif %}

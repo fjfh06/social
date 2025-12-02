@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historias de {{ username }}{% endblock %}
+
+{% block body %}
+
+<h1>Historias de <a href="{{ path('app_user_show', {'username': username}) }}">{{ username }}</a></h1>
+
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    {% for storie in stories %}
+        <a href="{{ path('app_storie_show', {'id': storie.id}) }}" style="text-decoration: none; color: #007bff;">
+        <div style="
+            width: 250px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        "
+        onmouseover="this.style.transform='scale(1.03)'"
+        onmouseout="this.style.transform='scale(1)'">
+            
+            <div style="width: 100%; height: 300px; overflow: hidden;">
+                <img src="{{ asset('stories/' ~ storie.img) }}" 
+                     alt="Story image"
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <div style="padding: 12px;">
+                <p style="margin: 0; font-size: 14px; color: gray;">
+                    {{ storie.datetime|date('d/m/Y H:i') }}
+                </p>
+
+            </div>
+        </div>
+        </a>
+    {% else %}
+        <p>Este usuario no tiene historias activas.</p>
+    {% endfor %}
+</div>
+
+<br>
+<a href="{{ path('app_storie_index') }}" 
+   style="display: inline-block; padding: 10px 15px; background: #007bff; color: white; border-radius: 6px; text-decoration: none;">
+   Volver a usuarios
+</a>
+{% endblock %}
