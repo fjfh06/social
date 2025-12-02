@@ -13,7 +13,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/post')]
 #[IsGranted('ROLE_USER')]
@@ -40,32 +39,25 @@ final class PostController extends AbstractController
 
             $img = $form->get('img')->getData();
 
-            // this condition is needed because the 'brochure' field is not required
-            // so the PDF file must be processed only when a file is uploaded
             if ($img) {
                 $directory = $this->getParameter('img_directory');
-    
-                $originalFilename = pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$img->guessExtension();
 
-                // Move the file to the directory where brochures are stored
+                $originalFilename = pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $img->guessExtension();
+
                 try {
                     $img->move($directory, $newFilename);
                 } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
                 }
 
-                // updates the 'imgname' property to store the PDF file name
-                // instead of its contents
                 $post->setImg($newFilename);
             }
 
             $entityManager->persist($post);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_post_index');
         }
 
         return $this->render('post/new.html.twig', [
@@ -78,18 +70,36 @@ final class PostController extends AbstractController
     public function like(Post $post, EntityManagerInterface $entityManager): Response
     {
         $post->addLike($this->getUser());
-        $entityManager->persist($post);
         $entityManager->flush();
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+
+        return $this->redirectToRoute('app_post_index');
     }
 
     #[Route('/unlike/{id}', name: 'app_post_unlike', methods: ['GET'])]
     public function unlike(Post $post, EntityManagerInterface $entityManager): Response
     {
         $post->removeLike($this->getUser());
-        $entityManager->persist($post);
         $entityManager->flush();
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+
+        return $this->redirectToRoute('app_post_index');
+    }
+
+    #[Route('/reposted/{id}', name: 'app_post_repost', methods: ['GET'])]
+    public function repost(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        $post->addRepostedBy($this->getUser());
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_post_index');
+    }
+
+    #[Route('/removeReposted/{id}', name: 'app_post_unrepost', methods: ['GET'])]
+    public function unrepost(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        $post->removeRepostedBy($this->getUser());
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_post_index');
     }
 
     #[Route('/{id}', name: 'app_post_show', methods: ['GET'])]
@@ -109,7 +119,7 @@ final class PostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_post_index');
         }
 
         return $this->render('post/edit.html.twig', [
@@ -121,29 +131,11 @@ final class PostController extends AbstractController
     #[Route('/{id}', name: 'app_post_delete', methods: ['POST'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($post);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_post_index');
     }
-    #[Route('/reposted/{id}', name: 'app_post_repost', methods: ['GET'])]
-    public function resposted(Post $post, EntityManagerInterface $entityManager): Response
-    {
-        $post->addRepostedBy($this->getUser());
-        $entityManager->persist($post);
-        $entityManager->flush();
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/removeReposted/{id}', name: 'app_post_unrepost', methods: ['GET'])]
-    public function removeReposted(Post $post, EntityManagerInterface $entityManager): Response
-    {
-        $post->removeRepostedBy($this->getUser());
-        $entityManager->persist($post);
-        $entityManager->flush();
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
-    }
-
 }
