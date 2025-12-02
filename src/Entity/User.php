@@ -22,8 +22,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    //#[ORM\UniqueConstraint (name: 'UNIQ_USERNAME', columns: ['username'])]
-
     private ?string $username = null;
 
     /**
@@ -62,12 +60,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
     private Collection $followers;
 
+    /**
+     * @var Collection<int, Md>
+     */
+    #[ORM\ManyToMany(targetEntity: Md::class, mappedBy: 'users')]
+    private Collection $mds;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->mds = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -87,31 +92,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -119,9 +112,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -134,9 +124,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
     public function __serialize(): array
     {
         $data = (array) $this;
@@ -146,14 +133,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
+    public function eraseCredentials(): void {}
 
-    /**
-     * @return Collection<int, Post>
-     */
     public function getPosts(): Collection
     {
         return $this->posts;
@@ -172,7 +153,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removePost(Post $post): static
     {
         if ($this->posts->removeElement($post)) {
-            // set the owning side to null (unless already changed)
             if ($post->getAuthor() === $this) {
                 $post->setAuthor(null);
             }
@@ -181,9 +161,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Post>
-     */
     public function getLikes(): Collection
     {
         return $this->likes;
@@ -208,9 +185,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
     public function getFollowing(): Collection
     {
         return $this->following;
@@ -232,9 +206,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
     public function getFollowers(): Collection
     {
         return $this->followers;
@@ -254,6 +225,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->followers->removeElement($follower)) {
             $follower->removeFollowing($this);
+        }
+
+        return $this;
+    }
+
+    public function getMds(): Collection
+    {
+        return $this->mds;
+    }
+
+    public function addMd(Md $md): static
+    {
+        if (!$this->mds->contains($md)) {
+            $this->mds->add($md);
+            $md->addUser($this); // <-- Sincroniza el owning side
+        }
+
+        return $this;
+}
+
+    public function removeMd(Md $md): static
+    {
+        if ($this->mds->removeElement($md)) {
+            $md->removeUser($this); // <-- Sincroniza el owning side
         }
 
         return $this;

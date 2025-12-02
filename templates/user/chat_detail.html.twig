@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+Chat con {{ otherUser ? otherUser.username : 'Usuario desconocido' }}
+{% endblock %}
+
+{% block body %}
+<h1>
+    Chat con {{ otherUser ? otherUser.username : 'Usuario desconocido' }}
+</h1>
+
+{# Botón para volver a todos los chats #}
+<a class="btn btn-secondary mb-3" href="{{ path('user_chat', {'id': app.user.id}) }}">
+    Volver a todos los chats
+</a>
+
+<div class="chat-container" style="border:1px solid #ccc; padding:15px; max-width:600px; margin-bottom:20px; height:400px; overflow-y:auto;">
+    {% if chat.text %}
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            {# Mostrar el mensaje único de Md #}
+            <div style="display:flex; justify-content: {{ app.user in chat.users ? 'flex-end' : 'flex-start' }};">
+                <div style="background-color: {{ app.user in chat.users ? '#dcf8c6' : '#f1f0f0' }};
+                            padding:8px 12px; border-radius:12px; max-width:70%;">
+                    {{ chat.text }}
+                    <div style="font-size:0.7em; text-align:right; color:#666;">
+                        {{ chat.daySent|date('H:i d/m/Y') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>No hay mensajes en este chat aún.</p>
+    {% endif %}
+</div>
+
+{# Formulario para enviar un nuevo mensaje #}
+<form action="{{ path('user_chat_send', {'id': chat.id}) }}" method="post">
+    <div class="mb-3">
+        <textarea name="text" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
+{% endblock %}
