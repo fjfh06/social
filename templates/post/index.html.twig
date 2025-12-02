@@ -14,12 +14,28 @@
 </p>
 
 {% if app.user and app.user.id != post.author.id %}
-    {% if post.author in app.user.following %}
-        <a href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+
+    {% set isFollowing = (post.author in app.user.following) %}
+
+    {% if post.author.isPrivate %}
+        {# ==== CUENTA PRIVADA ==== #}
+        {% if isFollowing %}
+            <a href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+        {% else %}
+            <span>Cuenta privada</span>
+        {% endif %}
+
     {% else %}
-        <a href="{{ path('app_user_follow', {'id': post.author.id}) }}">Seguir</a>
+        {# ==== CUENTA PÚBLICA ==== #}
+        {% if isFollowing %}
+            <a href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+        {% else %}
+            <a href="{{ path('app_user_follow', {'id': post.author.id}) }}">Seguir</a>
+        {% endif %}
     {% endif %}
+
 {% endif %}
+
 
                 <br>
                 {% if post.img %}

@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\FriendRequest;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -62,12 +64,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
     private Collection $followers;
 
+    #[ORM\Column]
+    private ?bool $isPrivate = null;
+
+    /**
+     * @var Collection<int, FriendRequest>
+     */
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender')]
+    private Collection $sentFriendRequests;
+
+    /**
+     * @var Collection<int, FriendRequest>
+     */
+    #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver')]
+    private Collection $receivedFriendRequests;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->following = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->sentFriendRequests = new ArrayCollection();
+        $this->receivedFriendRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -254,6 +273,78 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->followers->removeElement($follower)) {
             $follower->removeFollowing($this);
+        }
+
+        return $this;
+    }
+
+    public function isPrivate(): ?bool
+    {
+        return $this->isPrivate;
+    }
+
+    public function setIsPrivate(bool $isPrivate): static
+    {
+        $this->isPrivate = $isPrivate;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FriendRequest>
+     */
+    public function getSentFriendRequests(): Collection
+    {
+        return $this->sentFriendRequests;
+    }
+
+    public function addSentFriendRequest(FriendRequest $sentFriendRequest): static
+    {
+        if (!$this->sentFriendRequests->contains($sentFriendRequest)) {
+            $this->sentFriendRequests->add($sentFriendRequest);
+            $sentFriendRequest->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSentFriendRequest(FriendRequest $sentFriendRequest): static
+    {
+        if ($this->sentFriendRequests->removeElement($sentFriendRequest)) {
+            // set the owning side to null (unless already changed)
+            if ($sentFriendRequest->getSender() === $this) {
+                $sentFriendRequest->setSender(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FriendRequest>
+     */
+    public function getReceivedFriendRequests(): Collection
+    {
+        return $this->receivedFriendRequests;
+    }
+
+    public function addReceivedFriendRequest(FriendRequest $receivedFriendRequest): static
+    {
+        if (!$this->receivedFriendRequests->contains($receivedFriendRequest)) {
+            $this->receivedFriendRequests->add($receivedFriendRequest);
+            $receivedFriendRequest->setReceiver($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReceivedFriendRequest(FriendRequest $receivedFriendRequest): static
+    {
+        if ($this->receivedFriendRequests->removeElement($receivedFriendRequest)) {
+            // set the owning side to null (unless already changed)
+            if ($receivedFriendRequest->getReceiver() === $this) {
+                $receivedFriendRequest->setReceiver(null);
+            }
         }
 
         return $this;
