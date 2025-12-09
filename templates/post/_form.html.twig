@@ -1,4 +1,17 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'page-card'}}) }}
+    <div class="mb-3">
+        {{ form_label(form.text, '¿Qué quieres compartir?') }}
+        {{ form_widget(form.text, {'attr': {'class': 'form-control', 'placeholder': 'Escribe un pie de foto o deja solo la imagen'}}) }}
+        {{ form_errors(form.text) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.img, 'Imagen (JPEG, PNG o GIF)') }}
+        {{ form_widget(form.img, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.img) }}
+    </div>
+
+    <button class="btn btn-primary" type="submit" style="width: 100%;">
+        {{ button_label|default('Publicar') }}
+    </button>
 {{ form_end(form) }}

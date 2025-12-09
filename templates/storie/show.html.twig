@@ -3,42 +3,36 @@
 {% block title %}Storie{% endblock %}
 
 {% block body %}
-<div class="story-container" style="max-width: 500px; margin: 20px auto;">
+<div class="story-container">
+    <h1 class="page-title text-center">Historia</h1>
 
-    <h1 style="text-align: center;">Storie</h1>
-
-    <div class="card" style="border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
-
+    <div class="story-box">
         {% if storie.img %}
             <img src="{{ asset('stories/' ~ storie.img) }}" 
                  alt="Storie image"
-                 style="width: 100%; height: auto; display: block;">
+                 class="story-image">
         {% endif %}
 
-        <div style="padding: 15px;">
-
+        <div class="story-meta">
             <p><strong>Fecha:</strong> 
                 {{ storie.datetime ? storie.datetime|date('Y-m-d H:i') : '' }}
             </p>
 
             <p>
                 <strong>Subido por:</strong>
-                <a href="{{ path('app_user_show', {'username': storie.author.username}) }}">
-        {{ storie.author.username }}
-    </a>
+                <a class="inline-link" href="{{ path('app_user_show', {'username': storie.author.username}) }}">
+                    {{ storie.author.username }}
+                </a>
             </p>
-
         </div>
     </div>
 
-
-    <div style="margin-top: 20px; text-align: center;">
-        <a href="{{ path('app_storie_user_index', {'username': storie.author.username}) }}" class="btn btn-primary">Volver</a>
+    <div class="mt-4 text-center">
+        <a href="{{ path('app_storie_user_index', {'username': storie.author.username}) }}" class="btn btn-primary btn-sm">Volver</a>
     </div>
 
-    <div style="margin-top: 10px; text-align: center;">
+    <div class="mt-2 text-center">
         {{ include('storie/_delete_form.html.twig') }}
     </div>
-
 </div>
 {% endblock %}

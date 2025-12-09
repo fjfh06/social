@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
 use App\Entity\Md;
+use App\Entity\ChatMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -207,9 +208,17 @@ final class UserController extends AbstractController
         $currentUser = $this->getUser();
         $text = $request->request->get('text');
 
-        if ($text) {
-            $chat->setText($text); // Si quieres guardar solo el último mensaje en Md
-            // Si quieres guardar cada mensaje como entidad aparte, deberías crear entidad Message
+        if ($currentUser && $text) {
+            $message = new ChatMessage();
+            $message->setChat($chat);
+            $message->setAuthor($currentUser);
+            $message->setText($text);
+            $message->setCreatedAt(new \DateTimeImmutable());
+
+            // actualizamos la última actividad del chat
+            $chat->setDaySent(new \DateTime());
+
+            $em->persist($message);
             $em->flush();
         }
 

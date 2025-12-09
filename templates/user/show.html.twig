@@ -3,158 +3,188 @@
 {% block title %}User{% endblock %}
 
 {% block body %}
-    <h1>{{ user.username }}</h1>
-    
-    {% if app.user %}
-    <a class="btn btn-primary" href="{{ path('user_chat', {'id': user.id}) }}">Ver chats</a>
-    {% endif %}
+    <section class="page-card">
+        <header class="mb-4" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="avatar-circle" style="width:64px; height:64px; font-size:24px;">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h1 class="page-title" style="margin:0;">{{ user.username }}</h1>
+                    <p class="post-meta" style="margin:4px 0 0;">
+                        {{ user.followers|length }} seguidores · {{ user.following|length }} seguidos
+                    </p>
+                </div>
+            </div>
 
-    {# ==================================
-       BOTÓN SEGUIR / SOLICITUD AMISTAD
-       ================================== #}
-    {% if app.user and app.user.id != user.id %}
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                {% if app.user %}
+                    <a class="btn btn-secondary btn-sm" href="{{ path('user_chat', {'id': user.id}) }}">Ver chats</a>
+                {% endif %}
 
-        {# ¿ya le sigo? (usamos lo que ya tenías) #}
-        {% set isFollowing = (user in app.user.following) %}
+                {# BOTÓN SEGUIR / SOLICITUD AMISTAD #}
+                {% if app.user and app.user.id != user.id %}
+                    {% set isFollowing = (user in app.user.following) %}
+
+                    {% if user.isPrivate %}
+                        {% set pending = false %}
+                        {% for req in app.user.sentFriendRequests %}
+                            {% if req.receiver and req.receiver.id == user.id and req.status == 'PENDING' %}
+                                {% set pending = true %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if pending %}
+                            <span class="post-meta">Solicitud enviada</span>
+                        {% elseif isFollowing %}
+                            <a class="btn btn-secondary btn-sm" href="{{ path('app_user_unfollow', {'id': user.id}) }}">Dejar de seguir</a>
+                        {% else %}
+                            <a class="btn btn-primary btn-sm" href="{{ path('app_friend_request_send', {'id': user.id}) }}">Enviar solicitud</a>
+                        {% endif %}
+                    {% else %}
+                        {% if isFollowing %}
+                            <a class="btn btn-secondary btn-sm" href="{{ path('app_user_unfollow', {'id': user.id}) }}">Dejar de seguir</a>
+                        {% else %}
+                            <a class="btn btn-primary btn-sm" href="{{ path('app_user_follow', {'id': user.id}) }}">Seguir</a>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                {% if app.user and app.user.id == user.id %}
+                    <a class="btn btn-secondary btn-sm" href="{{ path('app_user_edit', {'id': user.id}) }}">Editar perfil</a>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="mb-4" style="display:flex; gap:24px; flex-wrap:wrap;">
+            <div style="min-width:140px;">
+                <h2 class="post-meta" style="text-transform:uppercase; letter-spacing:.08em; font-size:11px;">Seguidores</h2>
+                <ul style="list-style:none; padding:0; margin:6px 0 0; font-size:13px;">
+                    {% for follower in user.followers %}
+                        <li>
+                            <a class="inline-link" href="{{ path('app_user_show', {'username': follower.username}) }}">{{ follower.username }}</a>
+                        </li>
+                    {% else %}
+                        <li class="post-meta">No followers</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="min-width:140px;">
+                <h2 class="post-meta" style="text-transform:uppercase; letter-spacing:.08em; font-size:11px;">Siguiendo</h2>
+                <ul style="list-style:none; padding:0; margin:6px 0 0; font-size:13px;">
+                    {% for followed in user.following %}
+                        <li>
+                            <a class="inline-link" href="{{ path('app_user_show', {'username': followed.username}) }}">{{ followed.username }}</a>
+                        </li>
+                    {% else %}
+                        <li class="post-meta">Not following anyone</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {# QUIÉN PUEDE VER LOS POSTS #}
+        {% set canSeePosts = (not user.isPrivate) %}
 
         {% if user.isPrivate %}
-            {# PERFIL PRIVADO #}
-
-            {# ¿ya he enviado una solicitud pendiente? #}
-            {% set pending = false %}
-            {% for req in app.user.sentFriendRequests %}
-                {% if req.receiver and req.receiver.id == user.id and req.status == 'PENDING' %}
-                    {% set pending = true %}
-                {% endif %}
-            {% endfor %}
-
-            {% if pending %}
-                <p>Solicitud enviada</p>
-
-            {% elseif isFollowing %}
-                <a href="{{ path('app_user_unfollow', {'id': user.id}) }}">Dejar de seguir</a>
-
-            {% else %}
-                <a href="{{ path('app_friend_request_send', {'id': user.id}) }}">Enviar solicitud</a>
-            {% endif %}
-
-        {% else %}
-            {# PERFIL PÚBLICO: igual que antes #}
-            {% if isFollowing %}
-                <a href="{{ path('app_user_unfollow', {'id': user.id}) }}">Dejar de seguir</a>
-            {% else %}
-                <a href="{{ path('app_user_follow', {'id': user.id}) }}">Seguir</a>
+            {% if app.user and (app.user.id == user.id or app.user in user.followers) %}
+                {% set canSeePosts = true %}
             {% endif %}
         {% endif %}
-    {% endif %}
 
-    <h2>Followers ({{ user.followers|length }})</h2>
-    <ul>
-        {% for follower in user.followers %}
-            <li>
-                <a href="{{ path('app_user_show', {'username': follower.username}) }}">{{ follower.username }}</a>
-            </li>
-        {% else %}
-            <li>No followers</li>
-        {% endfor %}
-    </ul>
+        <div class="mb-4">
+            <h2 class="post-meta" style="text-transform:uppercase; letter-spacing:.08em; font-size:11px;">
+                Posts ({{ user.posts|length }})
+            </h2>
 
-    <h2>Following ({{ user.following|length }})</h2>
-    <ul>
-        {% for followed in user.following %}
-            <li>
-                <a href="{{ path('app_user_show', {'username': followed.username}) }}">{{ followed.username }}</a>
-            </li>
-        {% else %}
-            <li>Not following anyone</li>
-        {% endfor %}
-    </ul>
-
-    {# QUIÉN PUEDE VER LOS POSTS #}
-{% set canSeePosts = (not user.isPrivate) %}
-
-{% if user.isPrivate %}
-    {% if app.user and (app.user.id == user.id or app.user in user.followers) %}
-        {% set canSeePosts = true %}
-    {% endif %}
-{% endif %}
-
-<h2>Posts ({{ user.posts|length }})</h2>
-
-{% if canSeePosts %}
-    <ul>
-        {% for post in user.posts %}
-            <li>
-                <a href="{{ path('app_post_show', {'id': post.id}) }}">
-                    {{ post.text ? post.text|length > 30 ? post.text|slice(0, 30) ~ '...' : post.text : 'Image only' }}
-                </a>
-            </li>
-        {% else %}
-            <li>No posts yet</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Esta cuenta es privada. Solo los seguidores pueden ver sus posts.</p>
-{% endif %}
-
-{# SOLICITUDES RECIBIDAS (solo si tu cuenta es privada) #}
-{% if app.user and app.user.id == user.id and user.isPrivate %}
-    <h2>Solicitudes de amistad pendientes</h2>
-    <ul>
-        {% set hasPending = false %}
-
-        {% for req in user.receivedFriendRequests %}
-            {% if req.status == 'PENDING' %}
-                {% set hasPending = true %}
-                <li>
-                    <a href="{{ path('app_user_show', {'username': req.sender.username}) }}">
-                        {{ req.sender.username }}
-                    </a>
-                    -
-                    <a href="{{ path('app_friend_request_accept', {'id': req.id}) }}">Aceptar</a>
-                    <a href="{{ path('app_friend_request_reject', {'id': req.id}) }}">Rechazar</a>
-                </li>
-            {% endif %}
-        {% endfor %}
-
-        {% if not hasPending %}
-            <li>No tienes solicitudes pendientes</li>
-        {% endif %}
-    </ul>
-{% endif %}
-
-    {# NUEVA SECCIÓN: Reposts del usuario #}
-    <h2>Reposts ({{ user.reposts|length }})</h2>
-    <ul>
-        {% for repost in user.reposts %}
-            <li>
-                🔁 <a href="{{ path('app_post_show', {'id': repost.id}) }}">
-                    {% if repost.text %}
-                        {{ repost.text|length > 30 ? repost.text|slice(0, 30) ~ '...' : repost.text }}
+            {% if canSeePosts %}
+                <ul style="list-style:none; padding:0; margin:6px 0 0; font-size:13px;">
+                    {% for post in user.posts %}
+                        <li style="margin-bottom:4px;">
+                            <a class="inline-link" href="{{ path('app_post_show', {'id': post.id}) }}">
+                                {{ post.text ? post.text|length > 30 ? post.text|slice(0, 30) ~ '...' : post.text : 'Image only' }}
+                            </a>
+                        </li>
                     {% else %}
-                        Image only
+                        <li class="post-meta">No posts yet</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="post-meta mt-2">Esta cuenta es privada. Solo los seguidores pueden ver sus posts.</p>
+            {% endif %}
+        </div>
+
+        {% if app.user and app.user.id == user.id and user.isPrivate %}
+            <div class="mb-4">
+                <h2 class="post-meta" style="text-transform:uppercase; letter-spacing:.08em; font-size:11px;">
+                    Solicitudes de amistad pendientes
+                </h2>
+                <ul style="list-style:none; padding:0; margin:6px 0 0; font-size:13px;">
+                    {% set hasPending = false %}
+
+                    {% for req in user.receivedFriendRequests %}
+                        {% if req.status == 'PENDING' %}
+                            {% set hasPending = true %}
+                            <li style="margin-bottom:4px;">
+                                <a class="inline-link" href="{{ path('app_user_show', {'username': req.sender.username}) }}">
+                                    {{ req.sender.username }}
+                                </a>
+                                &nbsp;·&nbsp;
+                                <a class="inline-link" href="{{ path('app_friend_request_accept', {'id': req.id}) }}">Aceptar</a>
+                                &nbsp;·&nbsp;
+                                <a class="inline-link" href="{{ path('app_friend_request_reject', {'id': req.id}) }}">Rechazar</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if not hasPending %}
+                        <li class="post-meta">No tienes solicitudes pendientes</li>
                     {% endif %}
-                </a>
-                (Original by <a href="{{ path('app_user_show', {'username': repost.author.username}) }}">
-                    {{ repost.author.username }}
-                </a>)
-            </li>
-        {% else %}
-            <li>No reposts yet</li>
-        {% endfor %}
-    </ul>
+                </ul>
+            </div>
+        {% endif %}
 
-    <a href="{{ path('app_post_index') }}">Back to list</a>
+        <div class="mb-3">
+            <h2 class="post-meta" style="text-transform:uppercase; letter-spacing:.08em; font-size:11px;">
+                Reposts ({{ user.reposts|length }})
+            </h2>
+            <ul style="list-style:none; padding:0; margin:6px 0 0; font-size:13px;">
+                {% for repost in user.reposts %}
+                    <li style="margin-bottom:4px;">
+                        🔁
+                        <a class="inline-link" href="{{ path('app_post_show', {'id': repost.id}) }}">
+                            {% if repost.text %}
+                                {{ repost.text|length > 30 ? repost.text|slice(0, 30) ~ '...' : repost.text }}
+                            {% else %}
+                                Image only
+                            {% endif %}
+                        </a>
+                        <span class="post-meta">
+                            (Original de
+                            <a class="inline-link" href="{{ path('app_user_show', {'username': repost.author.username}) }}">
+                                {{ repost.author.username }}
+                            </a>)
+                        </span>
+                    </li>
+                {% else %}
+                    <li class="post-meta">No reposts yet</li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    {# Solo el usuario mismo puede editar su perfil #}
-    {% if app.user and app.user.id == user.id %}
-        <a href="{{ path('app_user_edit', {'id': user.id}) }}">Edit</a>
-        {{ include('user/_delete_form.html.twig') }}
-    {% endif %}
+        <div class="mt-4" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <a class="link-muted" href="{{ path('app_post_index') }}">Volver al feed</a>
 
-    {# Admin puede eliminar cualquier usuario #}
-    {% if is_granted('ROLE_ADMIN') and app.user.id != user.id %}
-        {{ include('user/_delete_form.html.twig') }}
-    {% endif %}
+            <div style="display:flex; gap:8px;">
+                {% if app.user and app.user.id == user.id %}
+                    {{ include('user/_delete_form.html.twig') }}
+                {% endif %}
 
+                {% if is_granted('ROLE_ADMIN') and app.user.id != user.id %}
+                    {{ include('user/_delete_form.html.twig') }}
+                {% endif %}
+            </div>
+        </div>
+    </section>
 {% endblock %}

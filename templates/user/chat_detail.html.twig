@@ -14,19 +14,20 @@ Chat con {{ otherUser ? otherUser.username : 'Usuario desconocido' }}
     Volver a todos los chats
 </a>
 
-<div class="chat-container" style="border:1px solid #ccc; padding:15px; max-width:600px; margin-bottom:20px; height:400px; overflow-y:auto;">
-    {% if chat.text %}
-        <div style="display:flex; flex-direction:column; gap:10px;">
-            {# Mostrar el mensaje único de Md #}
-            <div style="display:flex; justify-content: {{ app.user in chat.users ? 'flex-end' : 'flex-start' }};">
-                <div style="background-color: {{ app.user in chat.users ? '#dcf8c6' : '#f1f0f0' }};
-                            padding:8px 12px; border-radius:12px; max-width:70%;">
-                    {{ chat.text }}
-                    <div style="font-size:0.7em; text-align:right; color:#666;">
-                        {{ chat.daySent|date('H:i d/m/Y') }}
+<div class="chat-container">
+    {% if chat.messages|length > 0 %}
+        <div class="chat-messages">
+            {% for message in chat.messages %}
+                {% set isMe = message.author and message.author.id == app.user.id %}
+                <div class="chat-bubble-row {{ isMe ? 'chat-bubble-row--me' : 'chat-bubble-row--other' }}">
+                    <div class="chat-bubble {{ isMe ? 'chat-bubble--me' : 'chat-bubble--other' }}">
+                        <div>{{ message.text }}</div>
+                        <div class="chat-bubble-time">
+                            {{ message.createdAt|date('H:i d/m/Y') }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
     {% else %}
         <p>No hay mensajes en este chat aún.</p>

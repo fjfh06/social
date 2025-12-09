@@ -3,62 +3,30 @@
 {% block title %}Usuarios con historias{% endblock %}
 
 {% block body %}
-<h1 style="margin-bottom: 25px;">Usuarios con historias</h1>
+<h1 class="stories-page-title">Usuarios con historias</h1>
 
-<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+<div class="stories-grid">
 
     {# Card para crear nueva historia #}
-    <div style="
-        width: 150px;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        text-align: center;
-        transition: transform 0.2s ease;
-        cursor: pointer;
-    "
-    onmouseover="this.style.transform='scale(1.05)'"
-    onmouseout="this.style.transform='scale(1)'">
-
-        <a href="{{ path('app_storie_new') }}" 
-           style="text-decoration: none; color: inherit; display: block; padding: 15px;">
-           
-            <div style="width: 100%; height: 100px; background: #007bff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold;">
+    <a href="{{ path('app_storie_new') }}" class="story-card story-card--new">
+        <div class="story-card__inner">
+            <div class="story-card__thumb">
                 +
             </div>
-
-            <p style="margin-top: 10px; font-weight: 600;">Crear historia</p>
-        </a>
-
-    </div>
+            <p class="story-card__label">Crear historia</p>
+        </div>
+    </a>
 
     {# Cards de usuarios #}
     {% for user in users %}
-        <div style="
-            width: 150px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            text-align: center;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-        "
-        onmouseover="this.style.transform='scale(1.05)'"
-        onmouseout="this.style.transform='scale(1)'">
-
-            <a href="{{ path('app_storie_user_index', {'username': user.username}) }}" 
-               style="text-decoration: none; color: inherit; display: block; padding: 15px;">
-               
-                <div style="width: 100%; height: 100px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+        <a href="{{ path('app_storie_user_index', {'username': user.username}) }}" class="story-card">
+            <div class="story-card__inner">
+                <div class="story-card__thumb">
                     {{ user.username|first|upper }}
                 </div>
-
-                <p style="margin-top: 10px; font-weight: 600;">{{ user.username }}</p>
-            </a>
-
-        </div>
+                <p class="story-card__label">{{ user.username }}</p>
+            </div>
+        </a>
     {% else %}
         <p>No hay usuarios con historias.</p>
     {% endfor %}

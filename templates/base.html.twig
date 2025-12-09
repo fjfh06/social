@@ -4,26 +4,64 @@
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+        <link rel="stylesheet" href="{{ asset('styles.css') }}">
+        {% block stylesheets %}{% endblock %}
 
-        {% block javascripts %}
-        {% endblock %}
+        {% block javascripts %}{% endblock %}
     </head>
     <body>
-    {% if app.user %}
-        Logged in as {{ app.user.username }} |
-        <a href="{{ path('app_logout') }}">Logout</a><br>
-        <a href="{{ path('app_user_show', {'username': app.user.username}) }}">Profile</a>
-        <br>
-        <a href="{{ path('app_post_index') }}">Ver Posts</a>
-        <a href="{{ path('app_post_new') }}">Create Post</a>
-        <br>
-        <a href="{{ path('app_storie_index') }}">Ver Historias</a>
-        
-    {% else %}
-        <a href="{{ path('app_login') }}">Login</a>
-    {% endif %}
-        {% block body %}{% endblock %}
+        <div class="app-shell">
+            {% if app.user %}
+                <header class="app-header">
+                    <div class="brand">Social</div>
+                    <div class="user-chip">
+                        <div class="avatar-circle">
+                            {{ app.user.username|first|upper }}
+                        </div>
+                        <div class="user-links">
+                            <span>Conectado como <strong>{{ app.user.username }}</strong></span>
+                            <div>
+                                <a href="{{ path('app_user_show', {'username': app.user.username}) }}">Perfil</a>
+                                &bull;
+                                <a href="{{ path('app_logout') }}">Salir</a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            {% endif %}
+
+            <main class="app-main">
+                <div class="app-content">
+                    <div class="{% if not app.user %}auth-wrapper{% endif %}">
+                        {% block body %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+
+            {% if app.user %}
+                <nav class="app-bottom-nav">
+                    <a class="bottom-nav-link" href="{{ path('app_post_index') }}">
+                        <span class="bottom-nav-icon">🏠</span>
+                        <span>Inicio</span>
+                    </a>
+                    <a class="bottom-nav-link" href="{{ path('app_post_new') }}">
+                        <span class="bottom-nav-icon">➕</span>
+                        <span>Post</span>
+                    </a>
+                    <a class="bottom-nav-link" href="{{ path('app_storie_index') }}">
+                        <span class="bottom-nav-icon">🌀</span>
+                        <span>Stories</span>
+                    </a>
+                    <a class="bottom-nav-link" href="{{ path('app_user_show', {'username': app.user.username}) }}">
+                        <span class="bottom-nav-icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+                </nav>
+            {% else %}
+                <div class="auth-wrapper">
+                    <a href="{{ path('app_login') }}" class="inline-link">Ir a Login</a>
+                </div>
+            {% endif %}
+        </div>
     </body>
 </html>

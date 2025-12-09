@@ -32,9 +32,16 @@ class Md
     #[ORM\Column]
     private ?\DateTime $daySent = null;
 
+    /**
+     * @var Collection<int, ChatMessage>
+     */
+    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: ChatMessage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -101,6 +108,35 @@ class Md
     public function setDaySent(\DateTime $daySent): static
     {
         $this->daySent = $daySent;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ChatMessage>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(ChatMessage $message): static
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setChat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(ChatMessage $message): static
+    {
+        if ($this->messages->removeElement($message)) {
+            if ($message->getChat() === $this) {
+                $message->setChat(null);
+            }
+        }
 
         return $this;
     }

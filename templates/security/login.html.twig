@@ -3,35 +3,46 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+<div class="auth-card">
+    <h1 class="auth-title">Entrar</h1>
 
-    {% if app.user %}
+    <form method="post">
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="mb-3">
+                Estás logueado como {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}" class="inline-link">Salir</a>
+            </div>
+        {% endif %}
+
         <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            <label for="inputUsername">Usuario</label>
+            <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" autocomplete="username" required autofocus>
         </div>
-    {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputUsername">Username</label>
-    <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" autocomplete="username" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+        <div class="mb-3">
+            <label for="inputPassword">Contraseña</label>
+            <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+        </div>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-    </div>
+        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me"> Recuérdame
+            </label>
+        </div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-    <hr>
-    <a href="{{ path('app_register') }}">Registarte</a>
-</form>
+        <button class="btn btn-primary" type="submit">
+            Entrar
+        </button>
+
+        <p class="mt-4 text-center">
+            ¿No tienes cuenta?
+            <a class="inline-link" href="{{ path('app_register') }}">Regístrate</a>
+        </p>
+    </form>
+</div>
 {% endblock %}
