@@ -85,4 +85,80 @@
             </div>
         {% endfor %}
     </div>
+    <h1 class="feed-title">Inicio</h1>
+
+    {% for post in posts %}
+        <article class="post-card">
+            <header class="post-card-header">
+                <div>
+                    <div class="post-author">
+                        <a href="{{ path('app_user_show', {'username': post.author.username}) }}">
+                            {{ post.author.username }}
+                        </a>
+                    </div>
+                    <div class="post-meta">
+                        {{ post.postDate ? post.postDate|date('d M Y H:i') : '' }}
+                    </div>
+                </div>
+
+                <div class="post-meta">
+                    {% if app.user and app.user.id != post.author.id %}
+                        {% set isFollowing = (post.author in app.user.following) %}
+
+                        {% if post.author.isPrivate %}
+                            {% if isFollowing %}
+                                <a class="btn-link" href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+                            {% else %}
+                                <span class="link-muted">Cuenta privada</span>
+                            {% endif %}
+                        {% else %}
+                            {% if isFollowing %}
+                                <a class="btn-link" href="{{ path('app_user_unfollow', {'id': post.author.id}) }}">Dejar de seguir</a>
+                            {% else %}
+                                <a class="btn-link" href="{{ path('app_user_follow', {'id': post.author.id}) }}">Seguir</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </header>
+
+            {% if post.img %}
+                <div class="post-image-wrapper">
+                    <img class="post-image" src="{{ asset('img/' ~ post.img) }}" alt="Post Image">
+                </div>
+            {% endif %}
+
+            <div class="post-body">
+                <p>{{ post.text }}</p>
+            </div>
+
+            <div class="post-actions">
+                <span class="post-likes">{{ post.likes|length }} me gusta</span>
+
+                {% if app.user %}
+                    {% if post.likes.contains(app.user) %}
+                        <a href="{{ path('app_post_unlike', {'id': post.id}) }}">❤️</a>
+                    {% else %}
+                        <a href="{{ path('app_post_like', {'id': post.id}) }}">🤍</a>
+                    {% endif %}
+
+                    <span>{{ post.repostedBy|length }} reposts</span>
+
+                    {% if post.repostedBy.contains(app.user) %}
+                        <a href="{{ path('app_post_unrepost', {'id': post.id}) }}">❌</a>
+                    {% else %}
+                        <a href="{{ path('app_post_repost', {'id': post.id}) }}">🔁</a>
+                    {% endif %}
+                {% endif %}
+
+                <a class="link-muted" href="{{ path('app_post_show', {'id': post.id}) }}">Ver detalle</a>
+                <a class="link-muted" href="{{ path('app_post_edit', {'id': post.id}) }}">Editar</a>
+            </div>
+        </article>
+    {% else %}
+        <div class="feed-empty">
+            No hay posts todavía. <a class="btn-link" href="{{ path('app_post_new') }}">Crea el primero</a>.
+        </div>
+    {% endfor %}
+
 {% endblock %}

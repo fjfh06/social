@@ -6,6 +6,9 @@
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
         <link rel="stylesheet" href="{{ asset('styles.css') }}">
         {% block stylesheets %}{% endblock %}
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        {% block stylesheets %}
+        {% endblock %}
 
         {% block javascripts %}{% endblock %}
     </head>
@@ -63,5 +66,39 @@
                 </div>
             {% endif %}
         </div>
+    <div class="app-root">
+        <header class="app-navbar">
+            <div class="app-navbar-inner">
+                <div class="app-logo">
+                    Social
+                </div>
+                <nav class="app-nav-links">
+                    {% if app.user %}
+                        <span class="app-user-info">
+                            {{ app.user.username }}
+                        </span>
+                        <a href="{{ path('app_post_index') }}">Inicio</a>
+                        <a href="{{ path('app_storie_index') }}">Historias</a>
+                        <a href="{{ path('app_post_new') }}">Crear post</a>
+                        <a href="{{ path('app_user_show', {'username': app.user.username}) }}">Perfil</a>
+                        <a href="{{ path('app_logout') }}">Salir</a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}">Entrar</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="app-container">
+                <div class="app-main-column">
+                    {% block body %}{% endblock %}
+                </div>
+                <aside class="app-side-column">
+                    {# espacio lateral para futuras sugerencias, perfil, etc. #}
+                </aside>
+            </div>
+        </main>
+    </div>
     </body>
 </html>

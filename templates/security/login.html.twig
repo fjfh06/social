@@ -44,5 +44,50 @@
             <a class="inline-link" href="{{ path('app_register') }}">Regístrate</a>
         </p>
     </form>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">Social</div>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+
+        <h1>Inicia sesión</h1>
+
+        <form method="post" class="auth-form">
+            <div>
+                <label for="inputUsername">Usuario</label>
+                <input type="text" value="{{ last_username }}" name="username" id="inputUsername" autocomplete="username" required autofocus>
+            </div>
+
+            <div>
+                <label for="inputPassword">Contraseña</label>
+                <input type="password" name="password" id="inputPassword" autocomplete="current-password" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+            <div class="checkbox mb-3">
+                <label>
+                    <input type="checkbox" name="_remember_me"> Recordarme
+                </label>
+            </div>
+
+            <button type="submit">
+                Entrar
+            </button>
+        </form>
+
+        <div class="auth-extra">
+            ¿No tienes cuenta?
+            <a href="{{ path('app_register') }}">Regístrate</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

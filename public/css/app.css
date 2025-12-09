@@ -1,0 +1,386 @@
+/* Global layout */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: #fafafa;
+    color: #262626;
+}
+
+.app-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 80px 16px 32px; /* top space for navbar */
+    box-sizing: border-box;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 935px; /* similar to Instagram feed width */
+    display: flex;
+    gap: 32px;
+}
+
+.app-main-column {
+    flex: 2;
+    max-width: 614px;
+    margin: 0 auto;
+}
+
+.app-side-column {
+    flex: 1;
+    display: none;
+}
+
+@media (min-width: 992px) {
+    .app-side-column {
+        display: block;
+    }
+}
+
+/* Navbar */
+.app-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dbdbdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.app-navbar-inner {
+    width: 100%;
+    max-width: 935px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+.app-logo {
+    font-family: "Segoe Script", "Pacifico", cursive;
+    font-size: 24px;
+    color: #262626;
+}
+
+.app-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+
+.app-nav-links a {
+    color: #262626;
+    text-decoration: none;
+}
+
+.app-nav-links a:hover {
+    text-decoration: underline;
+}
+
+.app-user-info {
+    font-size: 14px;
+    color: #8e8e8e;
+}
+
+/* Feed / posts */
+.feed-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 16px;
+}
+
+.feed-empty {
+    padding: 24px;
+    text-align: center;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.post-card {
+    background-color: #ffffff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.post-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+.post-author {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.post-author a {
+    color: #262626;
+    text-decoration: none;
+}
+
+.post-author a:hover {
+    text-decoration: underline;
+}
+
+.post-meta {
+    font-size: 12px;
+    color: #8e8e8e;
+}
+
+.post-image-wrapper {
+    width: 100%;
+    max-height: 600px;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.post-body {
+    padding: 12px 16px 8px;
+    font-size: 14px;
+}
+
+.post-actions {
+    padding: 0 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.post-actions a {
+    text-decoration: none;
+    color: #262626;
+}
+
+.post-actions a:hover {
+    text-decoration: underline;
+}
+
+.post-likes {
+    font-weight: 600;
+}
+
+/* Stories */
+.stories-strip {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background-color: #ffffff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.story-card {
+    flex: 0 0 auto;
+    width: 80px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.story-avatar {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    border: 2px solid #c13584;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 6px;
+    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+.story-avatar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.story-avatar-inner span {
+    font-weight: 600;
+    font-size: 20px;
+    color: #262626;
+}
+
+.story-create {
+    border-style: dashed;
+    border-color: #0095f6;
+}
+
+.story-create-label {
+    font-weight: 600;
+}
+
+/* Auth (login / register) */
+.auth-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 350px;
+    background-color: #ffffff;
+    border: 1px solid #dbdbdb;
+    padding: 32px 40px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.auth-logo {
+    font-family: "Segoe Script", "Pacifico", cursive;
+    font-size: 32px;
+    margin-bottom: 24px;
+}
+
+.auth-card h1 {
+    font-size: 18px;
+    margin: 0 0 16px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: left;
+}
+
+.auth-form label {
+    font-size: 12px;
+    color: #8e8e8e;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #dbdbdb;
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: #fafafa;
+}
+
+.auth-form button,
+.btn-primary {
+    border: none;
+    border-radius: 4px;
+    background-color: #0095f6;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-form button:hover,
+.btn-primary:hover {
+    background-color: #0077c2;
+}
+
+.auth-extra {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+.auth-extra a {
+    color: #0095f6;
+    text-decoration: none;
+}
+
+.auth-extra a:hover {
+    text-decoration: underline;
+}
+
+/* Generic buttons/links */
+.btn-link {
+    color: #0095f6;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.link-muted {
+    color: #8e8e8e;
+    text-decoration: none;
+}
+
+.link-muted:hover {
+    text-decoration: underline;
+}
+
+/* Tables / generic pages */
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.table th,
+.table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.table thead {
+    background-color: #fafafa;
+    text-align: left;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+
