@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Form\UserEditType;
 use App\Entity\Md;
 use App\Entity\ChatMessage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -54,22 +55,32 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+{
+    $form = $this->createForm(UserEditType::class, $user);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
 
-            return $this->redirectToRoute('app_user_show', ['username' => $user -> getUsername()], Response::HTTP_SEE_OTHER);
+        $newPassword = $form->get('password')->getData();
+
+        if ($newPassword) {
+            $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         }
 
-        return $this->render('user/edit.html.twig', [
-            'user' => $user,
-            'form' => $form,
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_user_show', [
+            'username' => $user->getUsername()
         ]);
     }
+
+    return $this->render('user/edit.html.twig', [
+        'user' => $user,
+        'form' => $form,
+    ]);
+}
+
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
@@ -124,12 +135,12 @@ final class UserController extends AbstractController
             throw $this->createNotFoundException('Usuario no encontrado.');
         }
 
-        // Obtener todos los mensajes Md relacionados con este usuario
-        $messages = $user->getMds() ?? [];
+        // Todos los chats del usuario actual
+        $chats = $user->getMds();
 
         return $this->render('user/chat.html.twig', [
             'user' => $user,
-            'messages' => $messages,
+            'messages' => $chats,
         ]);
     }
 
@@ -142,17 +153,16 @@ final class UserController extends AbstractController
             throw $this->createNotFoundException('Chat no encontrado.');
         }
 
-        // Obtener los usuarios del chat excepto el actual
         $otherUser = $chat->getUsers()
                         ->filter(fn($u) => $u !== $this->getUser())
                         ->first();
 
-        // No lanzar excepción, sino pasar null a Twig
         return $this->render('user/chat_detail.html.twig', [
             'chat' => $chat,
             'otherUser' => $otherUser ?: null,
         ]);
     }
+
 
     #[Route('/chat/new/{userId}', name: 'user_chat_new', methods: ['GET'])]
     public function newChat(int $userId, EntityManagerInterface $em, UserRepository $userRepository): Response
@@ -170,27 +180,21 @@ final class UserController extends AbstractController
         }
 
         // Buscar chat existente entre los dos usuarios
-        $qb = $em->createQueryBuilder()
-            ->select('c')
-            ->from(Md::class, 'c')
-            ->join('c.users', 'u')
-            ->andWhere('u = :user1 OR u = :user2')
-            ->setParameter('user1', $currentUser)
-            ->setParameter('user2', $otherUser)
-            ->groupBy('c.id')
-            ->having('COUNT(u) = 2')
-            ->setMaxResults(1);
-
-        $existingChat = $qb->getQuery()->getOneOrNullResult();
+        $existingChat = null;
+        foreach ($currentUser->getMds() as $chat) {
+            if ($chat->getUsers()->contains($otherUser) && $chat->getUsers()->count() === 2) {
+                $existingChat = $chat;
+                break;
+            }
+        }
 
         if ($existingChat) {
-            // Redirigir al chat existente
             return $this->redirectToRoute('user_chat_detail', ['id' => $existingChat->getId()]);
         }
 
-        // Si no existe, crear un nuevo chat
+        // Crear un nuevo chat
         $chat = new Md();
-        $chat->setDaySent(new \DateTime());
+        $chat->setDaySent(new \DateTimeImmutable());
         $chat->addUser($currentUser);
         $chat->addUser($otherUser);
 
@@ -199,7 +203,6 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('user_chat_detail', ['id' => $chat->getId()]);
     }
-
 
 
     #[Route('/chat/{id}/send', name: 'user_chat_send', methods: ['POST'])]
@@ -215,8 +218,7 @@ final class UserController extends AbstractController
             $message->setText($text);
             $message->setCreatedAt(new \DateTimeImmutable());
 
-            // actualizamos la última actividad del chat
-            $chat->setDaySent(new \DateTime());
+            $chat->setDaySent(new \DateTimeImmutable());
 
             $em->persist($message);
             $em->flush();
@@ -224,6 +226,7 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('user_chat_detail', ['id' => $chat->getId()]);
     }
+
 
 
 }

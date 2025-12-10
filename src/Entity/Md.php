@@ -8,6 +8,14 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+#[ApiResource(
+    normalizationContext: ['groups' => ['md:read']],
+    denormalizationContext: ['groups' => ['md:write']]
+)]
+
 #[ORM\Entity(repositoryClass: MdRepository::class)]
 class Md
 {
@@ -21,21 +29,26 @@ class Md
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'mds')]
     #[ORM\JoinTable(name: 'md_user')] // <-- Añadido
+    #[Groups(['md:read'])]
     private Collection $users;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['md:read','md:write'])]
     private ?string $text = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['md:read','md:write'])]
     private ?string $img = null;
 
     #[ORM\Column]
-    private ?\DateTime $daySent = null;
+    #[Groups(['md:read'])]
+    private ?\DateTimeImmutable $daySent = null;
 
     /**
      * @var Collection<int, ChatMessage>
      */
-    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: ChatMessage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: ChatMessage::class, cascade: ['persist', 'remove'], orphanRemoval: true, fetch: 'EAGER')]
+    #[Groups(['md:read'])]
     private Collection $messages;
 
     public function __construct()
@@ -100,12 +113,12 @@ class Md
         return $this;
     }
 
-    public function getDaySent(): ?\DateTime
+    public function getDaySent(): ?\DateTimeImmutable
     {
         return $this->daySent;
     }
 
-    public function setDaySent(\DateTime $daySent): static
+    public function setDaySent(\DateTimeImmutable $daySent): static
     {
         $this->daySent = $daySent;
 

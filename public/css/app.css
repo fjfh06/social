@@ -189,6 +189,44 @@ body {
     font-weight: 600;
 }
 
+
+.post-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #0095f6;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-username {
+    font-weight: 600;
+    color: #262626;
+    text-decoration: none;
+}
+
+.post-username:hover {
+    text-decoration: underline;
+}
+
+.post-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+
 /* Stories */
 .stories-strip {
     display: flex;
@@ -247,6 +285,101 @@ body {
 .story-create-label {
     font-weight: 600;
 }
+
+/* Story page */
+.story-container {
+    max-width: 614px;
+    margin: 40px;
+}
+
+.story-box {
+    background-color: #ffffff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.story-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    object-fit: cover;
+}
+
+.story-meta {
+    font-size: 14px;
+    color: #555;
+}
+
+.story-meta a.inline-link {
+    color: #0095f6;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.story-meta a.inline-link:hover {
+    text-decoration: underline;
+}
+
+.btn-primary.btn-sm {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 4px;
+    font-weight: 600;
+    background-color: #0095f6;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+/* Delete button form */
+.delete-form button {
+    background-color: #ed4956;
+    border: none;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+}
+
+.delete-form button:hover {
+    background-color: #c13544;
+}
+
+.story-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+}
+
+.delete-wrapper form {
+    display: inline-block;
+}
+
+.delete-form button {
+    background-color: #ed4956;
+    border: none;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+
+.delete-form button:hover {
+    background-color: #c13544;
+}
+
+
 
 /* Auth (login / register) */
 .auth-page {

@@ -5,7 +5,10 @@
 {% block body %}
 
 <h1 class="stories-page-title">
-    Historias de <a class="inline-link" href="{{ path('app_user_show', {'username': username}) }}">{{ username }}</a>
+    Historias de 
+    <a class="inline-link" href="{{ path('app_user_show', {'username': username}) }}">
+        {{ username }}
+    </a>
 </h1>
 
 <div class="stories-grid">
@@ -15,9 +18,7 @@
                 <div class="story-card__thumb">
                     <img src="{{ asset('stories/' ~ storie.img) }}" alt="Story image">
                 </div>
-                <p class="story-card__time">
-                    {{ storie.datetime|date('d/m/Y H:i') }}
-                </p>
+                <p class="story-card__time">{{ storie.datetime|date('d/m/Y H:i') }}</p>
             </div>
         </a>
     {% else %}
@@ -26,8 +27,7 @@
 </div>
 
 <p class="mt-4">
-    <a href="{{ path('app_storie_index') }}" class="btn btn-secondary btn-sm">
-        Volver a usuarios
-    </a>
+    <a href="{{ path('app_storie_index') }}" class="btn btn-secondary btn-sm">Volver a usuarios</a>
 </p>
+
 {% endblock %}

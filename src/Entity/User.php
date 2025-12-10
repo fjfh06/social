@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -9,8 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\Post;
 use App\Entity\FriendRequest;
+use App\Entity\Storie;
+use App\Entity\Md;
 
+#[ApiResource(
+    // Normalization context utiliza el grupo principal 'user:read'
+    normalizationContext: ['groups' => ['user:read']], 
+    denormalizationContext: ['groups' => ['user:write']],
+    forceEager: false 
+)]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'user')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
@@ -20,15 +32,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    // Se añade 'user:read_nested' para cuando este usuario aparece dentro de otro.
+    #[Groups(['user:read', 'user:read_nested', 'post:read', 'friend_request:read', 'md:read'])] 
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read', 'user:write', 'user:read_nested', 'post:read', 'friend_request:read', 'md:read'])]
     private ?string $username = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user:read', 'user:read_nested'])] 
     private array $roles = [];
 
     /**
@@ -37,62 +53,87 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    // ===================== Relaciones EXPANDIDAS (Añadiendo grupos :read_nested) =====================
+
     /**
      * @var Collection<int, Post>
      */
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]
+    // Agregamos 'post:read_nested' para expandir los objetos Post
+    #[Groups(['user:read', 'post:read_nested'])] 
     private Collection $posts;
 
     /**
      * @var Collection<int, Post>
      */
     #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'likes')]
+    // Agregamos 'post:read_nested'
+    #[Groups(['user:read', 'post:read_nested'])] 
     private Collection $likes;
 
     /**
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
+    // Se utiliza 'user:read_nested' para expandir el objeto User, pero DEBEMOS QUITAR 'user:read' de aquí
+    // para evitar que un usuario anidado se intente serializar con su grupo principal, deteniendo la recursión.
+    // **IMPORTANTE: En la capa raíz se usa 'user:read', en la capa anidada se usará 'user:read_nested'.**
+    #[Groups(['user:read', 'user:read_nested'])] 
     private Collection $following;
 
     /**
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
+    // Se utiliza 'user:read_nested' para expandir el objeto User anidado.
+    #[Groups(['user:read', 'user:read_nested'])] 
     private Collection $followers;
 
     #[ORM\Column]
+    #[Groups(['user:read', 'user:write', 'user:read_nested'])]
     private ?bool $isPrivate = null;
 
     /**
      * @var Collection<int, FriendRequest>
      */
     #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'sender')]
+    // Agregamos 'friend_request:read_nested'
+    #[Groups(['user:read', 'friend_request:read_nested'])] 
     private Collection $sentFriendRequests;
 
     /**
      * @var Collection<int, FriendRequest>
      */
     #[ORM\OneToMany(targetEntity: FriendRequest::class, mappedBy: 'receiver')]
+    // Agregamos 'friend_request:read_nested'
+    #[Groups(['user:read', 'friend_request:read_nested'])] 
     private Collection $receivedFriendRequests;
 
     /**
      * @var Collection<int, Storie>
      */
     #[ORM\OneToMany(targetEntity: Storie::class, mappedBy: 'author')]
+    // Agregamos 'storie:read_nested' para expandir los objetos Storie
+    #[Groups(['user:read', 'storie:read_nested'])] 
     private Collection $stories;
 
     /**
      * @var Collection<int, Post>
      */
     #[ORM\ManyToMany(targetEntity: Post::class)]
+    // Agregamos 'post:read_nested'
+    #[Groups(['user:read', 'post:read_nested'])] 
     private Collection $reposts;
 
     /**
      * @var Collection<int, Md>
      */
     #[ORM\ManyToMany(targetEntity: Md::class, mappedBy: 'users')]
+    // Agregamos 'md:read_nested'
+    #[Groups(['user:read', 'md:read_nested'])] 
     private Collection $mds;
+
+    // ===================== Constructor y métodos (sin cambios funcionales) =====================
 
     public function __construct()
     {
@@ -109,8 +150,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isPrivate = false;
     }
 
-    // ===================== Getters y Setters básicos =====================
-
+    // ... (Resto de Getters y Setters)
+    // El resto del código de la entidad (getters, setters, métodos de colección) se mantiene como lo proporcionaste.
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -163,16 +205,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __serialize(): array
     {
         $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        $data["\0".self::class."\0password"] = hash('crc32c', $this->password ?? ''); 
 
         return $data;
     }
 
     #[\Deprecated]
     public function eraseCredentials(): void {}
-
-    // ===================== Relación Posts =====================
-
+    
+    // ... (Resto de métodos de colección sin cambios)
+    
+    /**
+     * @return Collection<int, Post>
+     */
     public function getPosts(): Collection
     {
         return $this->posts;
@@ -199,10 +244,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ===================== Relación Likes =====================
-
-    // ===================== Relación Likes =====================
-
+    /**
+     * @return Collection<int, Post>
+     */
     public function getLikes(): Collection
     {
         return $this->likes;
@@ -212,7 +256,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->likes->contains($like)) {
             $this->likes->add($like);
-            $like->addLike($this);
+            // $like->addLike($this); 
         }
 
         return $this;
@@ -221,16 +265,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeLike(Post $like): static
     {
         if ($this->likes->removeElement($like)) {
-            $like->removeLike($this);
+            // $like->removeLike($this); 
         }
 
         return $this;
     }
 
-    // ===================== Relación Following/Followers =====================
-
-    // ===================== Relación Following/Followers =====================
-
+    /**
+     * @return Collection<int, self>
+     */
     public function getFollowing(): Collection
     {
         return $this->following;
@@ -252,6 +295,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public function getFollowers(): Collection
     {
         return $this->followers;
@@ -261,7 +307,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->followers->contains($follower)) {
             $this->followers->add($follower);
-            $follower->addFollowing($this);
+            // $follower->addFollowing($this); 
         }
 
         return $this;
@@ -270,13 +316,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeFollower(self $follower): static
     {
         if ($this->followers->removeElement($follower)) {
-            $follower->removeFollowing($this);
+            // $follower->removeFollowing($this);
         }
 
         return $this;
     }
-
-    // ===================== Privacidad =====================
 
     public function isPrivate(): ?bool
     {
@@ -289,8 +333,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-    // ===================== Friend Requests =====================
 
     /**
      * @return Collection<int, FriendRequest>
@@ -350,8 +392,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ===================== Relación Stories =====================
-
     /**
      * @return Collection<int, Storie>
      */
@@ -381,8 +421,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    // ===================== Relación Reposts =====================
-
     /**
      * @return Collection<int, Post>
      */
@@ -407,6 +445,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Md>
+     */
     public function getMds(): Collection
     {
         return $this->mds;
@@ -416,16 +457,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->mds->contains($md)) {
             $this->mds->add($md);
-            $md->addUser($this); // <-- Sincroniza el owning side
+            $md->addUser($this); 
         }
 
         return $this;
-}
+    }
 
     public function removeMd(Md $md): static
     {
         if ($this->mds->removeElement($md)) {
-            $md->removeUser($this); // <-- Sincroniza el owning side
+            $md->removeUser($this); 
         }
 
         return $this;

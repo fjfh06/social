@@ -5,21 +5,9 @@
 {% block body %}
 <h1 class="stories-page-title">Usuarios con historias</h1>
 
-<div class="stories-grid">
-
-    {# Card para crear nueva historia #}
-    <a href="{{ path('app_storie_new') }}" class="story-card story-card--new">
-        <div class="story-card__inner">
-            <div class="story-card__thumb">
-                +
-            </div>
-            <p class="story-card__label">Crear historia</p>
-        </div>
-    </a>
-<h1 class="feed-title">Historias</h1>
-
 <div class="stories-strip">
-    {# Crear historia #}
+
+    {# Botón Crear Historia #}
     <div class="story-card">
         <a href="{{ path('app_storie_new') }}" class="link-muted">
             <div class="story-avatar story-create">
@@ -31,16 +19,8 @@
         </a>
     </div>
 
-    {# Usuarios con historias #}
+    {# Lista de usuarios con historias #}
     {% for user in users %}
-        <a href="{{ path('app_storie_user_index', {'username': user.username}) }}" class="story-card">
-            <div class="story-card__inner">
-                <div class="story-card__thumb">
-                    {{ user.username|first|upper }}
-                </div>
-                <p class="story-card__label">{{ user.username }}</p>
-            </div>
-        </a>
         <div class="story-card">
             <a href="{{ path('app_storie_user_index', {'username': user.username}) }}" class="link-muted">
                 <div class="story-avatar">
@@ -55,4 +35,5 @@
         <span class="link-muted">No hay usuarios con historias.</span>
     {% endfor %}
 </div>
+
 {% endblock %}

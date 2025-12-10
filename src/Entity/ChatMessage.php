@@ -6,27 +6,50 @@ use App\Repository\ChatMessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+#[ApiResource(
+    normalizationContext: ['groups' => ['chatMsg:read']],
+    denormalizationContext: ['groups' => ['chatMsg:write']]
+)]
+
 #[ORM\Entity(repositoryClass: ChatMessageRepository::class)]
 class ChatMessage
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['chatMsg:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'messages')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['chatMsg:read'])]
     private ?Md $chat = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['chatMsg:read'])]
     private ?User $author = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['chatMsg:read', 'chatMsg:write'])]
     private ?string $text = null;
 
     #[ORM\Column]
+    #[Groups(['chatMsg:read'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['chatMsg:read', 'chatMsg:write'])]
+    private bool $isRead = false; // <-- nuevo campo
+
+    // Constructor añadido
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -78,6 +101,17 @@ class ChatMessage
     {
         $this->createdAt = $createdAt;
 
+        return $this;
+    }
+    
+    public function getIsRead(): bool
+    {
+        return $this->isRead;
+    }
+
+    public function setIsRead(bool $isRead): static
+    {
+        $this->isRead = $isRead;
         return $this;
     }
 }

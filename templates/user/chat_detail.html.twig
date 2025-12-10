@@ -35,10 +35,13 @@ Chat con {{ otherUser ? otherUser.username : 'Usuario desconocido' }}
 </div>
 
 {# Formulario para enviar un nuevo mensaje #}
-<form action="{{ path('user_chat_send', {'id': chat.id}) }}" method="post">
-    <div class="mb-3">
-        <textarea name="text" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Enviar</button>
-</form>
+<div class="chat-form-container">
+    <form action="{{ path('user_chat_send', {'id': chat.id}) }}" method="post">
+        <div class="mb-3">
+            <textarea name="text" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+
 {% endblock %}

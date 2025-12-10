@@ -1,9 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Storie{% endblock %}
+{% block title %}Historia{% endblock %}
 
 {% block body %}
 <div class="story-container">
+
     <h1 class="page-title text-center">Historia</h1>
 
     <div class="story-box">
@@ -14,10 +15,7 @@
         {% endif %}
 
         <div class="story-meta">
-            <p><strong>Fecha:</strong> 
-                {{ storie.datetime ? storie.datetime|date('Y-m-d H:i') : '' }}
-            </p>
-
+            <p><strong>Fecha:</strong> {{ storie.datetime|date('Y-m-d H:i') }}</p>
             <p>
                 <strong>Subido por:</strong>
                 <a class="inline-link" href="{{ path('app_user_show', {'username': storie.author.username}) }}">
@@ -27,12 +25,18 @@
         </div>
     </div>
 
-    <div class="mt-4 text-center">
-        <a href="{{ path('app_storie_user_index', {'username': storie.author.username}) }}" class="btn btn-primary btn-sm">Volver</a>
+    <div class="story-actions">
+        <a href="{{ path('app_storie_user_index', {'username': storie.author.username}) }}" 
+           class="btn btn-primary btn-sm">
+            Volver
+        </a>
+
+        {% if app.user and app.user == storie.author %}
+            <div class="delete-wrapper">
+                {{ include('storie/_delete_form.html.twig') }}
+            </div>
+        {% endif %}
     </div>
 
-    <div class="mt-2 text-center">
-        {{ include('storie/_delete_form.html.twig') }}
-    </div>
 </div>
 {% endblock %}

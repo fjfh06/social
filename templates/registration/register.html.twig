@@ -1,46 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Crear cuenta{% endblock %}
 
 {% block body %}
-    <div class="auth-card">
-        <h1 class="auth-title">Crear cuenta</h1>
+<div class="auth-card">
+    <h1 class="auth-title">Crear cuenta</h1>
 
-        {{ form_errors(registrationForm) }}
+    {{ form_start(registrationForm, { attr: { class: 'auth-form' } }) }}
 
-        {{ form_start(registrationForm) }}
-            {{ form_row(registrationForm.username) }}
-            {{ form_row(registrationForm.plainPassword, {
-                label: 'Contraseña'
-            }) }}
-            {{ form_row(registrationForm.agreeTerms) }}
+        {{ form_row(registrationForm.username) }}
+        {{ form_row(registrationForm.plainPassword, {
+            label: 'Contraseña'
+        }) }}
+        {{ form_row(registrationForm.agreeTerms) }}
 
-            <button type="submit" class="btn btn-primary">Registrarse</button>
-        {{ form_end(registrationForm) }}
-    <div class="auth-page">
-        <div class="auth-card">
-            <div class="auth-logo">Social</div>
+        <button type="submit" class="btn btn-primary">Registrarse</button>
 
-            <h1>Crear cuenta</h1>
+    {{ form_end(registrationForm) }}
 
-            {{ form_errors(registrationForm) }}
-
-            <div class="auth-form">
-                {{ form_start(registrationForm) }}
-                    {{ form_row(registrationForm.username) }}
-                    {{ form_row(registrationForm.plainPassword, {
-                        label: 'Password'
-                    }) }}
-                    {{ form_row(registrationForm.agreeTerms) }}
-
-                    <button type="submit">Registrarse</button>
-                {{ form_end(registrationForm) }}
-            </div>
-
-            <div class="auth-extra">
-                ¿Ya tienes cuenta?
-                <a href="{{ path('app_login') }}">Inicia sesión</a>
-            </div>
-        </div>
+    <div class="auth-extra">
+        ¿Ya tienes cuenta?
+        <a href="{{ path('app_login') }}">Inicia sesion</a>
     </div>
+</div>
 {% endblock %}

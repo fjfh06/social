@@ -5,9 +5,9 @@
 {% block body %}
 <h1>Chats de {{ user.username }}</h1>
 
-{# Botón para empezar un nuevo chat #}
-<a class="btn btn-success mb-3" href="{{ path('user_chat_new', {'userId': user.id}) }}">
-    Empezar nuevo chat
+{# Botón para volver a empezar un nuevo chat #}
+<a class="btn btn-success mb-3" href="{{ path('app_user_index') }}">
+    Volver a la lista de usuarios
 </a>
 
 {# Lista de chats existentes #}
@@ -26,12 +26,11 @@
                     {% else %}
                         <strong>Usuario desconocido</strong>
                     {% endif %}
-                    
                     {% if lastMsg %}
                         - Último mensaje: {{ lastMsg.text|length > 30 ? lastMsg.text|slice(0,30) ~ '...' : lastMsg.text }}
                     {% endif %}
                 </span>
-                <a class="btn btn-primary btn-sm" href="{{ path('user_chat_detail', {'id': chat.id}) }}" target="_blank">
+                <a class="btn btn-primary btn-sm" href="{{ path('user_chat_detail', {'id': chat.id}) }}">
                     Abrir chat
                 </a>
             </li>
@@ -40,6 +39,4 @@
 {% else %}
     <p>No hay chats aún.</p>
 {% endif %}
-
-<a href="{{ path('app_user_show', {'username': user.username}) }}">Volver al perfil</a>
 {% endblock %}

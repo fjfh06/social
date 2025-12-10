@@ -5,18 +5,28 @@ namespace App\Entity;
 use App\Repository\FriendRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+#[ApiResource(
+    normalizationContext: ['groups' => ['friendRequest:read']],
+    denormalizationContext: ['groups' => ['friendRequest:write']]
+)]
 #[ORM\Entity(repositoryClass: FriendRequestRepository::class)]
 class FriendRequest
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['friendRequest:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(['friendRequest:read', 'friendRequest:write'])]
     private ?string $status = 'PENDING';
 
     #[ORM\Column]
+    #[Groups(['friendRequest:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'sentFriendRequests')]

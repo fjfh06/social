@@ -586,6 +586,20 @@ label {
   margin-top: 4px;
 }
 
+/* Contenedor del form con margen grande */
+.chat-form-container {
+    margin-top: 50px;   /* espacio superior */
+    margin-bottom: 50px; /* espacio inferior */
+}
+
+/* Opcional: centrar el form */
+.chat-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
 /* ============================
    Misc / utility
    ============================ */

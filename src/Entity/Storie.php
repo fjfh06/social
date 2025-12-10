@@ -5,25 +5,39 @@ namespace App\Entity;
 use App\Repository\StorieRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\User;
+
+#[ApiResource(
+    normalizationContext: ['groups' => ['storie:read']],
+    denormalizationContext: ['groups' => ['storie:write']]
+)]
+
 #[ORM\Entity(repositoryClass: StorieRepository::class)]
 class Storie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['storie:read'])]
     private ?int $id = null;
 
+    #[Groups(['storie:read', 'storie:write'])]
     #[ORM\Column(length: 255)]
     private ?string $img = null;
 
     #[ORM\Column]
+    #[Groups(['storie:read', 'storie:write'])]
     private ?\DateTime $datetime = null;
 
     #[ORM\Column]
+    #[Groups(['storie:read', 'storie:write'])]
     private ?bool $visible = null;
 
     #[ORM\ManyToOne(inversedBy: 'stories')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['storie:read'])]
     private ?User $author = null;
 
     public function getId(): ?int
